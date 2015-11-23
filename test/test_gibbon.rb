@@ -1,8 +1,7 @@
 require 'helper'
 require 'cgi'
-require 'ruby-debug' unless ENV["CI"]
 
-class TestGibbon < Test::Unit::TestCase
+class TestGibbon < MiniTest::Test
 
   context "attributes" do
 
@@ -84,10 +83,10 @@ class TestGibbon < Test::Unit::TestCase
       @gibbon.api_key = @api_key
       @gibbon.api_endpoint = "https://us6.api.mailchimp.com"
       expect_post("https://us6.api.mailchimp.com/1.3/?method=sayHello", {"apikey" => @api_key})
-      @gibbon.say_hello      
+      @gibbon.say_hello
     end
   end
-  
+
   context "Gibbon class variables" do
     setup do
       Gibbon.api_key = "123-us1"
@@ -95,14 +94,14 @@ class TestGibbon < Test::Unit::TestCase
       Gibbon.throws_exceptions = false
       Gibbon.api_endpoint = 'https://us6.api.mailchimp.com'
     end
-    
+
     teardown do
       Gibbon.api_key = nil
       Gibbon.timeout = nil
       Gibbon.throws_exceptions = nil
       Gibbon.api_endpoint = nil
     end
-    
+
     should "set api key on new instances" do
       assert_equal(Gibbon.new.api_key, Gibbon.api_key)
     end
@@ -110,7 +109,7 @@ class TestGibbon < Test::Unit::TestCase
     should "set timeout on new instances" do
       assert_equal(Gibbon.new.timeout, Gibbon.timeout)
     end
-    
+
     should "set throws_exceptions on new instances" do
       assert_equal(Gibbon.new.throws_exceptions, Gibbon.throws_exceptions)
     end
@@ -185,7 +184,7 @@ class TestGibbon < Test::Unit::TestCase
         @gibbon.say_hello
       end
     end
-    
+
     should "not raise exception if the api returns no response body" do
       Gibbon.stubs(:post).returns(Struct.new(:body).new(nil))
       assert_nil @gibbon.say_hello
@@ -206,7 +205,7 @@ class TestGibbon < Test::Unit::TestCase
       @gibbon = GibbonExport.new(@api_key)
 
       params = {:body => CGI::escape(MultiJson.dump(@body)), :timeout => 30}
-    
+
       url = @url.gsub('us1', 'us2') + "sayHello/"
       GibbonExport.expects(:post).with(url, params).returns(@returns)
       @gibbon.say_hello(@body)
